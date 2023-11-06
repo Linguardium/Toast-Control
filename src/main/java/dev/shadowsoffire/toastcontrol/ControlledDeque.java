@@ -1,20 +1,17 @@
 package dev.shadowsoffire.toastcontrol;
 
-import dev.shadowsoffire.placebo.collections.BlockedDeque;
-import net.minecraft.client.gui.components.toasts.AdvancementToast;
-import net.minecraft.client.gui.components.toasts.RecipeToast;
-import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.client.gui.components.toasts.Toast;
-import net.minecraft.client.gui.components.toasts.TutorialToast;
 
-@SuppressWarnings("deprecation")
-public class ControlledDeque extends BlockedDeque<Toast> {
+import net.minecraft.client.gui.components.toasts.*;
+import org.jetbrains.annotations.NotNull;
 
-    private static final long serialVersionUID = -5380678178676126928L;
+import java.util.ArrayDeque;
 
-    @Override
+// original class extends Placebo BlockedDeque class
+
+public class ControlledDeque extends ArrayDeque<Toast> {
+
     public boolean isBlocked(Toast toast) {
-        if (ToastConfig.INSTANCE.printClasses.get()) ToastControl.LOGGER.info(toast.getClass());
+        if (ToastConfig.INSTANCE.printClasses.get()) ToastLoader.LOGGER.info(toast.getClass());
         if (ToastConfig.INSTANCE.global.get() || ToastConfig.INSTANCE.globalVanilla.get() && this.isVanillaToast(toast)) return true;
         if (ToastConfig.INSTANCE.globalModded.get() && !this.isVanillaToast(toast)) return true;
         if (ToastControl.BLOCKED_CLASSES.contains(toast.getClass())) return true;
@@ -25,4 +22,30 @@ public class ControlledDeque extends BlockedDeque<Toast> {
     private boolean isVanillaToast(Toast toast) {
         return toast instanceof AdvancementToast || toast instanceof RecipeToast || toast instanceof SystemToast || toast instanceof TutorialToast;
     }
+
+    // methods pulled in from placebo https://github.com/Shadows-of-Fire/Placebo/blob/1.20/src/main/java/dev/shadowsoffire/placebo/collections/BlockedDeque.java
+    @Override
+    public void addFirst(@NotNull Toast toast) {
+        if (!isBlocked(toast)) super.addFirst(toast);
+    }
+    @Override
+    public void addLast(@NotNull Toast toast) {
+        if (!isBlocked(toast)) super.addFirst(toast);
+    }
+
+    @Override
+    public boolean add(@NotNull Toast toast) {
+        return !isBlocked(toast) && super.add(toast);
+    }
+
+    @Override
+    public boolean offerFirst(@NotNull Toast toast) {
+        return !isBlocked(toast) && super.offerFirst(toast);
+    }
+
+    @Override
+    public boolean offerLast(@NotNull Toast toast) {
+        return !isBlocked(toast) && super.offerLast(toast);
+    }
+
 }

@@ -1,0 +1,33 @@
+{
+	"schemaVersion": 1,
+	"id": "toastcontrol",
+	"version": "${version}",
+	"name": "Toast Control Fabric",
+	"description": "Blocking annoying popups since 1.12. Now on Fabric!",
+	"authors": [
+		"ShadowsOfFire",
+		"Linguardium"
+	],
+	"license": "MIT",
+	"icon": "assets/toastcontrol/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"client": [
+         "dev.shadowsoffire.toastcontrol.ToastLoader"
+		]
+	},
+	"accessWidener" : "toastcontrol.accesswidener",
+	"mixins": [
+      "mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.24",
+		"minecraft": "~1.20.2",
+		"java": ">=17",
+		"fabric-api": "*",
+		"forgeconfigapiport": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}

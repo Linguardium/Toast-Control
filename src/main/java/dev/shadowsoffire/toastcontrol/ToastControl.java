@@ -1,60 +1,62 @@
 package dev.shadowsoffire.toastcontrol;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.logging.log4j.Logger;
-import org.lwjgl.glfw.GLFW;
-
 import dev.shadowsoffire.toastcontrol.BetterToastComponent.BetterToastInstance;
+import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
+import fuzs.forgeconfigapiport.api.config.v2.ModConfigEvents;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.event.InputEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.fml.config.ModConfig;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 
 public class ToastControl {
 
-    public static final String MODID = ToastLoader.MODID;
-    public static final Logger LOGGER = ToastLoader.LOGGER;
     public static final KeyMapping CLEAR = new KeyMapping("key.toastcontrol.clear", GLFW.GLFW_KEY_J, "key.toastcontrol.category");
-    public static final ResourceLocation TRANSLUCENT = new ResourceLocation(MODID, "textures/gui/toasts.png");
-    public static final ResourceLocation TRANSPARENT = new ResourceLocation(MODID, "textures/gui/toasts2.png");
-    public static final ResourceLocation ORIGINAL = new ResourceLocation("textures/gui/toasts.png");
+    public static ResourceLocation OVERRIDE = null;
+    public static List<ResourceLocation> REPLACEMENT_BLACKLIST = new ArrayList<>();
 
-    @SubscribeEvent
-    public void keys(InputEvent.Key e) {
+    public static void keys() {
         if (CLEAR.isDown()) Minecraft.getInstance().getToasts().clear();
     }
 
-    public void keyReg(RegisterKeyMappingsEvent e) {
-        e.register(CLEAR);
+    public static void keyReg() {
+        KeyBindingHelper.registerKeyBinding(CLEAR);
     }
 
-    public void preInit(FMLClientSetupEvent e) {
-        Minecraft.getInstance().toast = new BetterToastComponent();
-        MinecraftForge.EVENT_BUS.register(this);
+    public static void preInit() {
+        Minecraft.getInstance().toast=new BetterToastComponent();
+        ClientTickEvents.END_CLIENT_TICK.register(ToastControl::clientTick);
         handleToastReloc();
         handleBlockedClasses();
+        handleBlockedTextures();
     }
 
+    public static void configReg() {
+        // register config
+        ForgeConfigRegistry.INSTANCE.register("toastcontrol", ModConfig.Type.COMMON, ToastConfig.SPEC);
+
+        // register config handlers
+        ModConfigEvents.loading("toastcontrol").register(ToastConfig::onLoad);
+        ModConfigEvents.reloading("toastcontrol").register(ToastConfig::onLoad);
+
+    }
+    static void handleBlockedTextures() {
+        // Background textures are per-toast now and use different fields for each.
+        REPLACEMENT_BLACKLIST=new ArrayList<>(ToastConfig.INSTANCE.textureBlacklist.get().stream().map(ResourceLocation::tryParse).filter(Objects::nonNull).toList());
+        if (OVERRIDE != null) { REPLACEMENT_BLACKLIST.add(OVERRIDE); }
+    }
     static void handleToastReloc() {
-        ResourceLocation target = Toast.TEXTURE;
-        if (ToastConfig.INSTANCE.translucent.get()) change(target, TRANSLUCENT);
-        if (ToastConfig.INSTANCE.transparent.get()) change(target, TRANSPARENT);
-        else if (!ToastConfig.INSTANCE.translucent.get() && !ToastConfig.INSTANCE.transparent.get()) change(target, ORIGINAL);
-    }
-
-    private static void change(ResourceLocation a, ResourceLocation b) {
-        ObfuscationReflectionHelper.setPrivateValue(ResourceLocation.class, a, b.getNamespace(), "f_135804_");
-        ObfuscationReflectionHelper.setPrivateValue(ResourceLocation.class, a, b.getPath(), "f_135805_");
+        String overrideResourceLocationString = ToastConfig.INSTANCE.globalBackgroundTexture.get();
+        if (overrideResourceLocationString != null && !overrideResourceLocationString.isBlank() ) { OVERRIDE = ResourceLocation.tryParse(overrideResourceLocationString); }
+        // Toasts have individual textures now replacable via resource pack
+        // included textures have been removed.
     }
 
     public static final List<Class<?>> BLOCKED_CLASSES = new ArrayList<>();
@@ -67,18 +69,16 @@ public class ToastControl {
                 BLOCKED_CLASSES.add(c);
             }
             catch (ClassNotFoundException e) {
-                LOGGER.error("Invalid class string provided to toast control: " + s);
+                ToastLoader.LOGGER.error("Invalid class string provided to toast control: {}", s);
             }
         }
     }
 
     public static List<BetterToastInstance<?>> tracker = new ArrayList<>();
 
-    @SubscribeEvent
-    public void clientTick(ClientTickEvent e) {
-        if (e.phase == Phase.END) {
+    public static void clientTick(Minecraft e) {
             tracker.removeIf(BetterToastInstance::tick);
-        }
+            keys();
     }
 
 }

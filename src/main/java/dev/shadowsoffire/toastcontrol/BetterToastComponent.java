@@ -1,19 +1,19 @@
 package dev.shadowsoffire.toastcontrol;
 
-import java.util.ArrayDeque;
-import java.util.BitSet;
-import java.util.Deque;
-import java.util.Iterator;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-
+import dev.shadowsoffire.toastcontrol.fabric.ToastAwareDrawContext;
 import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.toasts.Toast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.util.Mth;
+
+import java.util.ArrayDeque;
+import java.util.BitSet;
+import java.util.Deque;
+import java.util.Iterator;
 
 public class BetterToastComponent extends ToastComponent {
 
@@ -53,7 +53,6 @@ public class BetterToastComponent extends ToastComponent {
                     return false;
                 });
             }
-
         }
     }
 
@@ -64,7 +63,7 @@ public class BetterToastComponent extends ToastComponent {
     }
 
     @Override
-    public int findFreeIndex(int pSlotCount) {
+    protected int findFreeIndex(int pSlotCount) {
         if (this.freeSlots() >= pSlotCount) {
             int i = 0;
 
@@ -85,7 +84,7 @@ public class BetterToastComponent extends ToastComponent {
     }
 
     @Override
-    public int freeSlots() {
+    protected int freeSlots() {
         return ToastConfig.INSTANCE.toastCount.get() - this.occupiedSlots.cardinality();
     }
 
@@ -152,7 +151,9 @@ public class BetterToastComponent extends ToastComponent {
             stack.translate(ToastConfig.INSTANCE.offsetX.get(), ToastConfig.INSTANCE.offsetY.get(), 0);
             RenderSystem.enableBlend();
             Toast.Visibility visibility = Toast.Visibility.SHOW;
+            ((ToastAwareDrawContext)gfx).setDrawingToast(true);
             if (this.animationTime != -1) visibility = this.toast.render(gfx, BetterToastComponent.this, sysTime - this.visibleTime);
+            ((ToastAwareDrawContext)gfx).setDrawingToast(false);
             RenderSystem.disableBlend();
             stack.popPose();
 

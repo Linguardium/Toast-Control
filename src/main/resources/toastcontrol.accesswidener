@@ -1,0 +1,29 @@
+accessWidener v2 named
+
+accessible field net/minecraft/client/Minecraft toast Lnet/minecraft/client/gui/components/toasts/ToastComponent;
+mutable field net/minecraft/client/Minecraft toast Lnet/minecraft/client/gui/components/toasts/ToastComponent;
+
+accessible class net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance
+
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent minecraft Lnet/minecraft/client/Minecraft;
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent queued Ljava/util/Deque;
+mutable field net/minecraft/client/gui/components/toasts/ToastComponent queued Ljava/util/Deque;
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent visible Ljava/util/List;
+mutable field net/minecraft/client/gui/components/toasts/ToastComponent visible Ljava/util/List;
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent occupiedSlots Ljava/util/BitSet;
+mutable field net/minecraft/client/gui/components/toasts/ToastComponent occupiedSlots Ljava/util/BitSet;
+
+extendable method net/minecraft/client/gui/components/toasts/ToastComponent freeSlots ()I
+extendable method net/minecraft/client/gui/components/toasts/ToastComponent findFreeIndex (I)I
+
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance index I
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance slotCount I
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance animationTime J
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance visibleTime J
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance visibility Lnet/minecraft/client/gui/components/toasts/Toast$Visibility;
+accessible method net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance <init> (Lnet/minecraft/client/gui/components/toasts/ToastComponent;Lnet/minecraft/client/gui/components/toasts/Toast;II)V
+accessible field net/minecraft/client/gui/components/toasts/ToastComponent$ToastInstance toast Lnet/minecraft/client/gui/components/toasts/Toast;
+
+accessible field net/minecraft/client/resources/TextureAtlasHolder textureAtlas Lnet/minecraft/client/renderer/texture/TextureAtlas;
+accessible field net/minecraft/client/resources/TextureAtlasHolder atlasInfoLocation Lnet/minecraft/resources/ResourceLocation;
+accessible field net/minecraft/client/renderer/texture/TextureAtlas texturesByName Ljava/util/Map;
