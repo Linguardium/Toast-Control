@@ -54,7 +54,7 @@ java {
 	// withSourcesJar()
 
 	sourceCompatibility = JavaVersion.VERSION_17
-	targetCompa+tibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
 }
 
 jar {
